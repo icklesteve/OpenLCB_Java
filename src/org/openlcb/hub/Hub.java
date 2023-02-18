@@ -10,17 +10,18 @@ import java.util.logging.Logger;
 /**
  * Simple multi-threaded OpenLCB hub implementation.
  * <P>
- * Multiple connections send and receive lines terminated by newline,
+ * Multiple connections send lines terminated by newline,
  * each of which is echoed to all other connections.
  * <P>
- * Line end behaviours can be changed to not require the newline between
- * incoming CAN Frames or adding them at the end of a Frame whilst sending.
+ * Constructor has option to disable the line termination characters.
  * <P>
- * Code for finding start / end of CAN frames without line feeds adapted from JMRI.
+ * Accepts incoming network streams with or without line terminations.
+ * Code for finding start / end of CAN frames adapted from JMRI.
+ * Any characters outside of these frames are discarded.
  * <p>
- * Hub without line endings currently supports the GridConnect Serial spec for
+ * Currently supports the GridConnect Serial spec for
  * their CANUSB Interface, section 2.7.1 Message String Syntax in the pdf from
- * gridconnect.com/collections/can-pc-interfaces/products/canusb-com-fd-converter-usb-can-fd-interface#documents-and-drivers
+ * https://gridconnect.com/collections/can-pc-interfaces/products/canusb-com-fd-converter-usb-can-fd-interface#documents-and-drivers
  * <p>
  * main() directly invokes an object of the class.
  * <p>
@@ -150,16 +151,10 @@ public class Hub {
         @Override
         public void run() {
             try ( DataInputStream input = new DataInputStream(clientSocket.getInputStream());
-                    BufferedReader bfr = new BufferedReader(new InputStreamReader(input));
             ) {
                 output = new PrintStream(clientSocket.getOutputStream(),true,"ISO-8859-1");
                 while (!disposed) {
-                    String line;
-                    if (lineEndings) {
-                        line = bfr.readLine();
-                    } else {
-                        line = loadChars( input);
-                    }
+                    String line = loadChars( input);
                     if (line == null) break;  // socket ended
                     queue.put(new Memo(line, this));
                 }
