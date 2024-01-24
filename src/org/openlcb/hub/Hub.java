@@ -102,7 +102,7 @@ public class Hub {
 
     BlockingQueue<Memo> queue = new LinkedBlockingQueue<>();
     ArrayList<Forwarding> threads = new ArrayList<>();
-    final int port;
+    int port;
 
     private ServerSocket service = null;
 
@@ -137,7 +137,23 @@ public class Hub {
         }
     }
 
-    public int getPort() { return port; }
+    /**
+     * Get the Port Number.
+     * @return the current Port Number.
+     **/
+    public int getPort() {
+        return port;
+    }
+
+    /**
+     * Set the Port Number for the Hub to use.
+     * This must be called BEFORE starting the Hub.
+     * @param newPort the Port Number to use.
+     **/
+    public void setPort(int newPort) {
+        port = newPort;
+    }
+
     public void addForwarder(Forwarding f) {
         threads.add(f);
     }
